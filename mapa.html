@@ -1,0 +1,895 @@
+<!DOCTYPE html>
+<html lang="cs">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mapa</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <style>
+      @keyframes fadeIn {
+      to {
+        opacity: 1;
+      }
+    }
+      @font-face {
+        font-family: "font1";
+        src: url(fonts/Gabarito-VariableFont_wght.ttf);
+      }
+      @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.07); }
+            100% { transform: scale(1.); }
+      }
+      
+      body {
+        display: flex;
+        flex-direction: column;
+        font-family: "font1";
+        margin: 0;
+        align-items: center;
+        position: relative;
+        overflow-y: auto;
+        animation: fadeIn 1.3s ease-out forwards;
+        opacity: 0;
+        background: black;
+      }
+
+      .background-wrapper {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-image: url("images/rsz_1backgroundnovy2.jpg");
+        background-size: cover;
+        background-position: center;
+        filter: brightness(50%);
+        z-index: -1;
+      }
+      
+      .container {
+        width: 90%;
+      }
+      hr {
+        margin-top: 50px;
+      }
+      #map {
+        height: 74vh;
+        width: 100%;
+        border-radius: 10px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+        position: relative;
+        z-index: 2;
+      }
+      h3 {
+        margin-top: 100px;
+      }
+      .sidebar {
+        width: 1000px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        background: rgba(0, 0, 0, 0.7);
+        padding: 15px;
+        margin-top: 10px;
+        border-radius: 8px;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+        z-index: 2;
+      }
+      img {
+        margin-left: 52px;
+      }
+      .sidebar h3 {
+        color: #fff;
+        margin-bottom: 10px;
+      }
+      
+      .checkboxes {
+        display: flex;
+        gap: 20px;
+        flex-wrap: wrap;
+        justify-content: center;
+      }
+      
+      .filter-label {
+        font-weight: bold;
+        color: #ffffff;
+      }
+      
+      #articles {
+        padding: 20px;
+      }
+      
+      .tab-content {
+        margin-top: 20px;
+        padding: 20px 30px;
+        border-radius: 8px;
+        max-width: 900px;
+        margin-left: auto;
+        margin-right: auto;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+        background-color: rgba(0, 0, 0, 0.7);
+      }
+      
+      .tab-content h1 {
+        font-size: 90px;
+        color: #ffffff;
+        text-align: center;
+        margin: 5px 0 40px;
+      }
+      
+      h1 {
+        margin-bottom: 50px;
+      }
+      
+      .location-article {
+        margin-top: 20px;
+        font-size: 1rem;
+        color: white;
+        max-width: 2000px;
+        margin-left: auto;
+        margin-right: auto;
+        padding: 10px;
+        border-radius: 8px;
+        overflow-y: auto;
+        scroll-margin-top: 120px;
+      }
+      
+      .location-article h3 {
+        text-align: center;
+        font-size: 45px;
+        color: white;
+      }
+      
+      .location-article p {
+        text-align: center;
+        font-size: 20px;
+        color: white;
+      }
+      
+      .location-link {
+        text-align: center;
+        font-size: 1rem;
+        color: #007bff;
+        text-decoration: none;
+      }
+      
+      .location-link:hover {
+        text-decoration: underline;
+      }
+      
+      header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background-color: rgba(0, 0, 0, 0.7);
+        color: white;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+        width: 100%;
+        margin: 0 auto;
+        position: sticky;
+        top: 0;
+        z-index: 999;
+        margin-bottom: 30px;
+      }
+      
+      .dropdown {
+        position: relative;
+        display: inline-block;
+        cursor: pointer;
+      }
+      
+      .dropdown img {
+        width: 50px;
+        margin-right: 20px;
+      }
+      
+      .dropdown-content {
+        display: none;
+        position: absolute;
+        background-color: rgba(0, 0, 0, 0.7);
+        min-width: 160px;
+        box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.5);
+        z-index: 1;
+        bottom: 0;
+        right: 0;
+        transform: translateY(100%);
+        border-radius: 12px;
+      }
+      
+      .show {
+          display: block;
+      }
+      
+      .dropdown-content a {
+        color: rgb(225, 225, 225);
+        padding: 12px 16px;
+        text-decoration: none;
+        display: block;
+      }
+      
+      .dropdown-content a:hover {
+        background-color: rgba(255, 255, 255, 0.2);
+        border-radius: 12px;
+      }
+      
+      .logo {
+        margin-left: 20px;
+        transition: 0.3s ease;
+        filter: invert(0.6) brightness(1.5);
+      }
+      
+      .logo:hover {
+        transform: scale(1.05);
+        filter: invert(1) brightness(2);
+      }
+      
+      footer {
+        background-color: rgb(15, 15, 15);
+        padding: 10px 0;
+        text-align: center;
+        color: white;
+        margin-top: auto;
+        width: 100%;
+      }
+      
+      footer ul {
+        list-style: none;
+      }
+      
+      .sstefooter {
+        text-align: center;
+        font-size: 30px;
+        margin: 20px 0;
+      }
+      
+      li {
+        color: white;
+        text-align: center;
+      }
+      
+      html {
+        scroll-behavior: smooth;
+        scroll-margin-bottom: 200px;
+      }
+      .buttonup {
+        position: sticky;
+        top: 1000px;
+        text-decoration: none;
+        border: 2px;
+        transition: 0.3 ease;
+      }
+      .buttonup-a {
+        text-decoration: none;
+        color: black;
+        padding: 8px;
+        border: 5px solid white;
+        border-radius: 100px;
+        background-color: white;
+        font-size: 18px;
+        transition: 0.3s ease;
+      }
+      .buttonup-a:hover {
+        color: white;
+        background-color: black;
+        border: 5px solid black;
+      }
+      .buttonup-a, .buttonup:hover {
+        animation: pulse 1s infinite;
+      }
+      ::selection {
+        background-color: white;
+        color: black;
+      }
+      a {
+        color: black;
+        text-decoration: none;
+        font-size: 17px;
+      }
+      .fotky {
+        margin-left: 51px;
+      }
+      h5 {
+        color: #fff;
+        font-size: 23px;
+        margin-top: 0%;
+        margin-bottom: 1.5%;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="background-wrapper"></div>
+    <div id="nahore-up"></div>
+    <header>
+      <div class="header-left">
+        <a href="index.html">
+          <img src="images/logo1.webp" class="logo" alt="Logo" width="100" height="100">
+        </a>
+      </div>
+      <div class="dropdown">
+        <img src="images/tri_carky.png" class="logo" onclick="toggleMenu()" alt="Menu">
+        <div class="dropdown-content" id="menu">
+            <a href="mapa.html">Mapa</a>
+            <a href="galerie.html">Galerie</a>
+            <a href="kontakty.html">Kontakty</a>
+            
+        </div>
+    </div>
+    </header>
+    
+    <div class="container">
+      <div id="map"></div>
+    </div>
+    
+    <div class="sidebar">
+      <h5>Filtr kategorií</h5>
+      <div class="checkboxes">
+        <label class="filter-label">
+          <input type="checkbox" class="filter-checkbox" value="rozhledna" checked> Rozhledny
+        </label>
+        <label class="filter-label">
+          <input type="checkbox" class="filter-checkbox" value="mesta" checked> Města
+        </label>
+        <label class="filter-label">
+          <input type="checkbox" class="filter-checkbox" value="vodni-plochy" checked> Vodní plochy
+        </label>
+        <label class="filter-label">
+          <input type="checkbox" class="filter-checkbox" value="hory" checked> Hory
+        </label>
+        <label class="filter-label">
+          <input type="checkbox" class="filter-checkbox" value="ostatni" checked> Ostatní
+        </label>
+      </div>
+    </div>
+    <h4 class="buttonup"><a href="#nahore-up" class="buttonup-a">↑ Zpět na mapu</a></h4>
+    <div id="articles"></div>
+    
+    <script>
+      function toggleMenu() {
+          const menu = document.getElementById("menu");
+          menu.classList.toggle("show");
+      }
+
+      window.onclick = function(event) {
+          if (!event.target.closest('.dropdown') && !event.target.closest('.dropdown-content')) {
+              const menu = document.getElementById("menu");
+              menu.classList.remove("show");
+          }
+      }
+      // Inicializace mapy
+      const map = L.map('map').setView([47.26563, 12.39421], 8);
+      L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+      attribution: '&copy; <a href="https://www.esri.com/en-us/arcgis/products/arcgis-online/overview">Esri</a> contributors'
+      }).addTo(map);
+      
+      // Definice vlastních ikon
+      
+      
+      // Seznam markerů (s kategoriemi a articleId, jež odpovídají článkům)
+      const markers = [];
+      
+      const markerObjects = [];
+      markers.forEach(markerData => {
+        const m = L.marker(markerData.coords).bindPopup(markerData.name);
+        m.category = markerData.category;
+        m.articleId = markerData.articleId;
+        m.addTo(map);
+        markerObjects.push(m);
+        
+        // Po kliknutí na marker se posune stránka k článku s daným ID
+        m.on('click', () => {
+          const article = document.getElementById(markerData.articleId);
+          if (article) {
+            article.scrollIntoView({ behavior: 'smooth' });
+          }
+        });
+      });
+      
+      // Funkce aktualizující viditelnost markerů a generující články podle vybraných kategorií
+      function updateVisibility() {
+        const selectedCategories = Array.from(document.querySelectorAll('.filter-checkbox:checked'))
+                                      .map(cb => cb.value);
+        
+        markerObjects.forEach(marker => {
+          if (selectedCategories.includes(marker.category)) {
+            marker.addTo(map);
+          } else {
+            map.removeLayer(marker);
+          }
+        });
+        
+        const articlesDiv = document.getElementById('articles');
+        let html = "";
+        
+        if (selectedCategories.includes('rozhledna')) {
+          html += `
+            <div class="tab-content" id="tab1">
+            <h1>Rozhledny</h1>
+            <hr>
+            <div class="location-article" id="rozhledna-pyramidenkogel">
+              <h3>Rozhledna Pyramidenkogel</h3>
+              <p>Rozhledna Pyramidenkogel se nachází v rakouských Korutanech, nedaleko jezera Wörthersee, na vrcholu stejnojmenné hory ve výšce 851 metrů nad mořem. S výškou 100 metrů je považována za nejvyšší dřevěnou rozhlednu na světě. Byla otevřena v roce 2013 a její unikátní spirálovitá konstrukce kombinuje dřevo, ocel a sklo, což jí dodává moderní a zároveň přírodní vzhled.<br><br>
+
+Rozhledna nabízí několik vyhlídkových plošin, z nichž se návštěvníkům naskýtají panoramatické výhledy na korutanskou jezerní krajinu, Julské Alpy, Karavanky a za dobré viditelnosti i na vzdálenější oblasti. Hlavní vyhlídková plošina se nachází ve výšce 70 metrů a je přístupná jak výtahem, tak točitým schodištěm s více než 400 schody. Jednou z atrakcí rozhledny je také nejdelší zakrytý tobogán v Evropě, který měří 120 metrů a umožňuje návštěvníkům sjet zpět dolů s dávkou adrenalinu.<br><br>
+
+Celý areál rozhledny je moderně vybavený a zahrnuje návštěvnické centrum, obchod se suvenýry, kavárnu a bezbariérový přístup. Pyramidenkogel je ideálním cílem pro rodiny, milovníky architektury i turisty, kteří hledají nezapomenutelný výhled bez nutnosti náročného horského výstupu. Rozhledna je také často využívána pro různé kulturní a společenské akce, včetně svateb a koncertů pod širým nebem.</p><br><br>
+            </div>
+            <img src="images/fotka1.jpg" width=370 height=250>
+            <img src="images/fotka2.jpg" width=370 height=250>
+            <hr>
+            <div class="location-article" id="rozhledna-highline179">
+              <h3>Lanový most Highline 179</h3>
+              <p>Lanový most Highline 179 je jedním z nejunikátnějších mostů v Rakousku a nachází se v regionu Tyrolsko, konkrétně u městečka Reutte. Tento most se stal známým nejen svou délkou, ale i svou výškou a odvážnou konstrukcí. Highline 179 překlenuje celé údolí a spojuje zříceninu hradu Ehrenberg a bývalou římskou pevnost Claudia. Jeho délka přesahuje 400 metrů a most se nachází ve výšce až 114 metrů nad zemí. Díky své délce a výšce je zapsán v Guinessově knize rekordů a patří mezi nejdelší visuté mosty na světě.<br><br>
+
+Tento most je ideálním místem pro milovníky adrenalinových zážitků a vyhledávače neobvyklých výletů. Při procházce po mostě se budete cítit, jako byste se procházeli v oblacích, a výhledy na okolní krajinu a historické památky jsou naprosto dechberoucí. Během procházky můžete obdivovat nejen samotný most, ale i okolní přírodu, která je bohatá na lesy, řeky a horské masivy.<br><br>
+
+Návštěvníci si mohou užít nejen vizuálně impozantní zážitek, ale také historii této oblasti. Hrad Ehrenberg a římská pevnost Claudia, ke kterým most vede, jsou skvosty středověké architektury a poskytují zajímavý pohled na historii tohoto regionu. Most Highline 179 je skvélé spojení přírody, historie a moderní inženýrské dokonalosti, což ho činí nezapomenutelným zážitkem pro každého, kdo navštíví tuto oblast.<br><br></p>
+<img src="images/fotka3.jpg" width=380 height=230>
+            <img src="images/fotka4.jpg" width=380 height=230>
+            <hr>        
+</div>
+            <div class="location-article" id="rozhledna-top-of-tyrol">
+              <h3>Vyhlídková plošina Top of Tyrol</h3>
+              <p>Plošina TOP OF TYROL se nachází na vrcholu ledovce Stubai a je jedním z nejvýznamnějších turistických cílů v Rakousku. Vysoká 3 210 metrů nad mořem, tato vyhlídková plošina nabízí nezapomenutelný výhled na okolní Stubaiské Alpy a širokou panoramatickou krajinu, která sahá až k Dolomitům. Plošina je přístupná pomocí lanovky, která návštěvníky bezpečně vyveze až na tuto neuvěřitelnou výšku. Pro turisty, kteří milují adrenalin, je to ideální místo, kde mohou zažít skutečně jedinečné pohledy na krajinu a zároveň se cítit, jako by byli na vrcholu světa.<br><br>
+
+Při výstupu na tuto vyhlídkovou plošinu mohou návštěvníci užít nejen krásné výhledy na zasněžené vrcholky hor, ale také pozorovat divokou alpskou přírodu, která je domovem mnoha vzácných druhů rostlin a zvířat. Tento zážitek je ještě umocněn tím, že návštěvníci mohou procházet kolem ledovce a obdivovat nádherné zmrzlé krajiny, které jsou během letních měsíců zcela odlišné od těch zimních. Každá roční doba zde nabízí jiný pohled na krajinu, což znamená, že TOP OF TYROL je fascinující místo k návštěvě po celý rok.<br><br>
+
+Tato vyhlídková plošina je nejen atraktivní z hlediska přírodního krásy, ale také z pohledu technické dokonalosti. Stavba plošiny vyžadovala vysokou úroveň inženýrských dovedností, aby byla bezpečně integrována do okolní horské krajiny. Pro turisty, kteří hledají něco víc než jen běžný výlet, je TOP OF TYROL ideálním místem, které kombinuje přírodní krásy, dobrodružství a jedinečný zážitek z výšky.<br><br></p>
+<img src="images/fotka5.jpg" width=375 height=240>
+            <img src="images/fotka6.jpg" width=375 height=240>
+            <hr>          
+</div>
+            <div class="location-article" id="rozhledna-airwalk">
+              <h3>Vyhlídková plošina Airwalk</h3>
+              <p>Vyhlídková plošina Airwalk se nachází ve výšce 1 933 metrů nad mořem na přehradní hrázi Kölnbreinsperre v údolí řeky Malta v rakouských Korutanech. Tato unikátní konstrukce je zavěšena 200 metrů nad hlubokým údolím a nabízí návštěvníkům dechberoucí výhledy na okolní krajinu.<br><br>
+
+Plošina je vybavena mřížovou podlahou kombinovanou se sklem, což umožňuje návštěvníkům doslova "kráčet ve vzduchu" a pozorovat krajinu pod sebou. Tento design přidává zážitku na intenzitě a je oblíbeným místem pro ty, kteří hledají adrenalinové zážitky. Airwalk je také známý jako oblíbená lokalita pro bungee jumping, což svědčí o jeho popularitě mezi milovníky extrémních sportů.<br><br>
+
+Dostupnost plošiny je zajištěna po vysokohorské silnici Maltatal Hochalmstrasse, která je zpoplatněná. Cesta nahoru je však odměněna nejen samotným zážitkem z Airwalku, ale i nádhernými výhledy na okolní krajinu, vodopády a přírodu. Pro rodiny s dětmi je v okolí také dětské hřiště s vodními prvky, které nabízí možnost odpočinku a zábavy po návštěvě plošiny.<br><br></p>
+<img src="images/fotka7.jpeg" width=370 height=240>
+            <img src="images/fotka8.jpeg" width=370 height=240>   
+            <hr>          
+</div>
+            <div class="location-article" id="rozhledna-5fingers">
+              <h3>Vyhlídková plošina 5 Fingers</h3>
+              <p>Vyhlídková plošina 5 Fingers se nachází na vrcholu Dachsteinu v Rakousku, a to ve výšce přibližně 2 100 metrů nad mořem. Tato fascinující plošina je jednou z nejúžasnějších vyhlídek v Alpách a nabízí návštěvníkům nejen dechberoucí výhledy, ale také unikátní architektonický zážitek. Plošina je navržena tak, aby svými pěti prsty, které se rozprostírají do okolní krajiny, připomínala ruku. Každý z prstů je tvořen skleněnou podlahou, která umožňuje návštěvníkům vychutnat si výhledy, jak na okolní alpské vrcholy, tak na hluboké údolí pod nimi.<br><br>
+
+Tato vyhlídka nabízí opravdu impozantní pohled na masiv Dachsteinu, horská jezera a údolí, které se táhnou v dálce. Pro milovníky přírody a fotografy je to ideální místo pro zachycení nádherných panoramatických snímků. 5 Fingers je také oblíbeným cílem turistů, kteří sem přicházejí nejen kvůli výhledům, ale i kvůli adrenalinu, který přináší chůze po skleněných plošinách.<br><br>
+
+Plošina je snadno přístupná prostřednictvím lanovky z města Obertraun. Návštěvníci mohou využít lanovku, která je dostupná po celý rok, a vydat se na krátkou pěší túru k samotné plošině. Při výstupu si mohou vychutnat panoramatické výhledy na okolní horské vrcholy, které v zimě zdobí zasněžené štíty, a v létě poskytují svěží alpskou scenérii. Pokud plánujete delší pobyt v této oblasti, můžete se vydat na různé pěší túry, které vedou k dalším nádherným vyhlídkám a přírodním krásám.<br><br></p>
+<img src="images/fotka9.jpg" width=375 height=240>
+            <img src="images/fotka10.jpeg" width=375 height=240>  
+            <hr>           
+</div>
+            <div class="location-article" id="rozhledna-skywalk">
+              <h3>Vyhlídka Dachstein Skywalk</h3>
+              <p>Dachstein Skywalk, známý také jako „Stezka do nebes“, je jedním z nejzajímavějších a nejzajímavějších míst v rakouských Alpách. Tato vyhlídka se nachází ve výšce přibližně 2700 metrů nad mořem a je umístěna na okraji skalní stěny Dachsteinu. Stojí na vysoce vertikálním útesu a nabízí návštěvníkům úchvatný výhled na alpskou krajinu. Jedním z nejzajímavějších prvků této vyhlídky je její podlaha, která je částečně vyrobena ze skla, což dává návštěvníkům jedinečný pocit, že „kráčí v oblacích“ a poskytuje jim skvělý výhled na dolní údolí.<br><br>
+
+Vyhlídka Dachstein Skywalk se nachází v oblasti Dachstein-West, která je oblíbená nejen pro turistiku, ale také pro zimní sporty, jako je lyžování a snowboarding. Pro návštěvníky, kteří sem přicházejí v letních měsících, je Dachstein Skywalk ideálním výchozím bodem pro prozkoumání okolních horských stezek a alpských vrcholů. Z vrcholu můžete vidět nejen masiv Dachsteinu, ale také vzdálené vrcholy Alp, které se táhnou až po rakouskou hranici se Slovinskem.<br><br>
+
+Dostupnost vyhlídky je zajištěna lanovkou, která vede až na samotný vrchol. Po příjezdu na horu si návštěvníci mohou vychutnat nejen nezapomenutelné výhledy, ale také další atrakce v okolí, jako je ledovcová jeskyně a blízká vyhlídková trasa. Tato oblast je vhodná pro turisty všech věkových kategorií a úrovní kondice, ať už hledají relaxaci, nebo chtějí objevovat alpskou přírodu na vlastní pěst.<br><br></p>
+<img src="images/fotka11.jpg" width=375 height=235>
+            <img src="images/fotka12.jpg" width=375 height=235> 
+            <hr>            
+</div>
+          </div>`;
+      }
+      
+      if (selectedCategories.includes('vodni-plochy')) {
+        html += `
+          <div class="tab-content" id="tab2">
+            <h1>Vodní plochy</h1>
+            <hr>
+            <div class="location-article" id="voda-achensee">
+              <h3>Jezero Achensee</h3>
+              <p>Jezero Achensee, často označované jako „Tyrolské moře“, je největším jezerem v rakouském Tyrolsku. Nachází se mezi pohořími Karwendel a Rofan a svou rozlohou 6,8 km² zaujímá místo v srdci rakouských Alp. Jezero je známé pro svou neuvěřitelnou čistotu vody, která dosahuje křišťálové průzračnosti. Díky tomu je oblíbeným místem pro plavání, vodní sporty a jachting. Mnozí turisté také přicházejí, aby si užili krásné pláže a relaxaci na břehu jezera, zatímco v okolí se nachází mnoho stezek pro pěší turistiku a horská kola.<br><br>
+
+Přestože je jezero Achensee oblíbeným letním rekreačním místem, nabízí také mnoho aktivit v zimním období. V zimě je oblast kolem jezera ideální pro běh na lyžích, sjezdové lyžování a snowboarding. Kromě toho je v okolí řada útulných horských chat, kde si turisté mohou užít tradiční rakouskou kuchyni a ohřát se po náročné zimní túře.<br><br>
+
+Jezero Achensee je také oblíbeným cílem pro ty, kteří hledají klidnější alternativu k rušným letoviskům v Alpách. Mnoho turistů se sem vydává, aby si užili nádherné výhledy na hory a přírodu, aniž by museli čelit masovému turismu. Místní infrastruktura je dobře rozvinutá, s širokou nabídkou ubytování, restaurací a aktivit, které zaručují pohodlný a příjemný pobyt.<br><br>
+</p>
+<img src="images/fotka13.jpg" width=380 height=240>
+            <img src="images/fotka14.jpg" width=380 height=240>     
+            <hr>        
+</div>
+            <div class="location-article" id="voda-krimmel">
+              <h3>Krimmelské vodopády</h3>
+              <p>Krimmelské vodopády, známé také jako Krimmler Wasserfälle, jsou nejvyšší vodopády v Rakousku a zároveň největší v celé Evropě. Nacházejí se v obci Krimml v Salcbursku, na okraji Národního parku Vysoké Taury. Tyto vodopády jsou jedním z nejimpozantnějších přírodních úkazů v Alpách, kdy voda padá ve třech stupních z celkové výšky 380 metrů, což vytváří úchvatnou podívanou.<br><br>
+
+K vodopádům vede několik turistických tras, které umožňují návštěvníkům prozkoumat okolní přírodu a přiblížit se k jednotlivým kaskádám. Cesta až k vodopádům je krásná a pohodlná, s možností pozorovat divokou přírodu Vysokých Taur. V létě jsou vodopády oblíbeným místem pro turisty, kteří zde hledají osvěžení a přírodní krásu, zatímco v zimě vytvářejí vodopády kouzelný ledový svět. Krimmelské vodopády jsou součástí oblasti, která byla vyhlášena za přírodní rezervaci, a jsou důležitým místem pro ochranu místní flóry a fauny.<br><br>
+
+Pro návštěvníky, kteří si přejí zažít vodopády z jiné perspektivy, existují vyhlídkové plošiny, které nabízí panoramatické výhledy na celé okolí. Při správných povětrnostních podmínkách mohou návštěvníci obdivovat nádherné duhy, které se objevují v mlze vytvářené padající vodou. Krimmelské vodopády jsou tedy nejen přírodní zajímavostí, ale i skvélé místo pro relaxaci a obdivování jedinečné alpské krajiny.<br><br></p>
+<img src="images/fotka15.jpg" width=375 height=235>
+            <img src="images/fotka16.jpg" width=375 height=235>    
+            <hr>         
+</div>
+            <div class="location-article" id="voda-gosauseen">
+              <h3>Jezera Gosauseen</h3>
+              <p>Jezera Gosauseen se nacházejí v Solné komoře v Horním Rakousku, blízko městečka Gosau a pod impozantním masivem Dachstein. Tento soubor tří jezer — Vorderer Gosausee (Přední jezero), Gosaulacke (prostřední jezero) a Hinterer Gosausee (Zadní jezero) — je oblíbený nejen pro svou malebnost, ale i pro širokou nabídku aktivit v přírodě. Přední jezero je známé svými jasně tyrkysovými vodami, které jsou perfektně odrazem okolních vrcholků hor. Tato oblast je ideálním místem pro turistiku, cyklistiku, plachtění a v zimních měsících pro běh na lyžích a lyžování. Okolní krajina je jedinečná svou kombinací horských svahů, lesů a alpských luk, které lákají turisty do přírody v každém ročním období.<br><br>
+
+Celá oblast je součástí přírodního parku Dachstein-Salzkammergut, který je zapsán na seznamu světového dědictví UNESCO. Návštěvníci mohou obdivovat nejen krásné jezero, ale i bohatou faunu a flóru, která se zde vyskytuje, včetně vzácných druhů rostlin a zvířat, jako jsou orli skalní, kteří tu hnízdí. Kromě toho je zde mnoho turistických stezek, které nabízejí různé úrovně náročnosti, takže každý si může vybrat trasu podle svých možností. Jezera jsou také domovem pro mnoho vodních ptáků, což z nich činí ideální místo pro pozorování přírody a fotografování.<br><br></p>
+<img src="images/fotka17.jpg" width=375 height=235>
+            <img src="images/fotka18.jpg" width=375 height=235>  
+            <hr>           
+</div>
+            <div class="location-article" id="voda-finstertal">
+              <h3>Nádrž Finstertal</h3>
+              <p>Nádrž Finstertal je vysokohorská přehrada nacházející se v Tyrolsku, Rakousko, nedaleko obce Kühtai, která je známá svou výškou a výkonem. Tato nádrž, umístěná ve výšce více než 2300 metrů nad mořem, patří do komplexu přečerpávacích vodních elektráren Sellrain-Silz, což je jeden z nejvýkonnějších systémů tohoto typu v Evropě. Jejím hlavním úkolem je produkce elektrické energie, která se získává z přirozeného spádu vody, což z ní činí klíčovou součást alpského energetického systému.<br><br>
+
+Nádrž byla postavena ve 20. století a dnes je důležitým prvkem v řízení vodních zdrojů v oblasti. Její přítomnost však není jen technickým zázrakem, ale také přitažlivým místem pro turisty a outdoorové nadšence. Nádrž Finstertal se nachází v malebné horské scenérii, obklopená divokou přírodou, a je přístupná prostřednictvím horských tras, které vedou kolem jejího okraje. Tento region je ideální pro turistiku, zejména pro ty, kteří hledají klid a krásu alpské přírody.<br><br>
+
+Přítomnost této nádrže v tak vysoké nadmořské výšce z ní činí místo pro ty, kteří hledají výzvy. Z oblasti kolem nádrže vede několik stezek, které umožňují turistům nejen pozorovat technické aspekty nádrže, ale i objevovat skrytý alpský svět. Z vodní hladiny nádrže se odráží okolní vrcholy a horské štíty, což činí tuto lokalitu oblíbenou mezi fotografy a přírodními nadšenci. Kromě pěší turistiky je možné zde podniknout i výlety na horských kolech nebo se zúčastnit jiných outdoorových aktivit, které poskytují zážitek z hory i vody.<br><br></p>
+<img src="images/fotka19.jpg" width=380 height=240>
+            <img src="images/fotka20.jpg" width=380 height=240>     
+            <hr>        
+</div>
+            <div class="location-article" id="voda-schwarzsee">
+              <h3>Jezero Schwarzsee</h3>
+              <p>Jezero Schwarzsee, nacházející se v Tyrolsku, je malebné rašelinové jezero, které je jedním z nejteplejších jezer v Alpách. Leží přibližně 2 km západně od Kitzbühelu a má rozlohu 16 hektarů, což z něj činí středně velkou vodní plochu. Jeho maximální hloubka dosahuje 7 metrů, což je ideální podmínka pro teplejší vody během letních měsíců, které mohou dosahovat až 27 °C. Tato teplota vody činí jezero ideálním místem pro koupání, a to nejen pro turisty, ale i pro místní obyvatele, kteří ho pravidelně navštěvují.<br><br>
+
+Jezero Schwarzsee je obklopeno krásnou přírodou a horskými scenériemi, což ho činí oblíbeným cílem pro turisty a milovníky přírody. V okolí se nacházejí stezky pro pěší turistiku a cyklistiku, které vedou kolem jezera a nabízejí nádherné výhledy na okolní alpské vrcholy. V zimě je jezero zamrzlé a nabízí možnosti pro zimní sporty, jako je bruslení a běh na lyžích. I když je jezero známé svými teplými letními vodami, jeho atmosféra se mění s ročními obdobími a každý návštěvník může zažít jeho krásy v jiném světle.<br><br>
+
+Poblíž jezera se nachází několik restaurací a chat, které nabízejí tradiční rakouskou kuchyni a příjemné prostředí pro relaxaci po náročném dni stráveném v přírodě. Jezero Schwarzsee je také známé svou biodiverzitou, a to jak v oblasti rostlin, tak i zvířat. Je domovem několika druhů ptáků a ryb, což z něj činí zajímavé místo pro milovníky ornitologie a rybaření. Přítomnost přírodních rezervací v okolí jezera také pomáhá chránit místní ekosystémy a zachovávat tuto oblast v co nejpůvodnějším stavu.<br><br>
+
+I když není jezero Schwarzsee tak známé jako některé jiné alpské vodní plochy, jeho kouzlo spočívá v klidné atmosféře a možnosti úniku do přírody. Ať už se rozhodnete pro koupání, turistiku, nebo jen relaxaci u vody, jezero Schwarzsee nabízí jedinečný zážitek, který stojí za to objevit.<br><br></p>
+<img src="images/fotka21.jpg" width=380 height=235>
+            <img src="images/fotka22.jpg" width=380 height=235> 
+            <hr>            
+</div>
+          </div>`;
+      }
+      
+      if (selectedCategories.includes('mesta')) {
+        html += `
+          <div class="tab-content" id="tab3">
+            <h1>Města</h1>
+            <hr>
+            <div class="location-article" id="mesto-viden">
+              <h3>Vídeň</h3>
+              <p>Vídeň, hlavní město Rakouska, leží na řece Dunaj na východě země a je domovem přibližně dvou milionů obyvatel. Je známá svou bohatou historií, která sahá až do dob Římské říše, a byla po staletí sídelním městem habsburské monarchie. Díky této minulosti je Vídeň doslova prošpikovaná památkami – patří mezi ně císařský palác Hofburg, letní sídlo Schönbrunn, slavná katedrála svatého Štěpána či velkolepý komplex Belvedere. Historické centrum města je zapsáno na seznamu světového dědictví UNESCO a je ideálním místem pro pěší procházky mezi monumentálními stavbami, parky a kavárnami.<br><br>
+
+Vídeň je však i kulturní metropolí – působili zde velikáni jako Mozart, Beethoven, Haydn či Strauss. Dodnes je město známé svou hudební scénou, včetně slavné Vídeňské státní opery nebo každoročního novoročního koncertu Vídeňských filharmoniků. Mezi vyhledávané kulturní instituce patří také Albertina, Uměleckohistorické muzeum nebo Muzejní čtvrť s Leopoldovým muzeem.<br><br>
+
+Neodmyslitelnou součástí vídeňské identity je i kavárenská kultura – tradiční kavárny jako Café Central, Café Sacher nebo Demel lákají na vůni kávy, slavný sachr dort a poklidnou atmosféru, která vybízí k rozjímání i diskuzím. K tomu všemu Vídeň nabízí i rozsáhlé zelené plochy jako Prater s obřím ruským kolem nebo Schönbrunnský park s výhledem z Glorietty. Město je skvělou volbou pro milovníky historie, umění, architektury i gastronomie.<br><br></p>
+<img src="images/fotka23.jpg" width=385 height=235>
+            <img src="images/fotka24.jpg" width=385 height=235>  
+            <hr>           
+</div>
+            <div class="location-article" id="mesto-hallstatt">
+              <h3>Hallstatt</h3>
+              <p>Hallstatt, malebné městečko v rakouské Solné komoře, je známé nejen svou neuvěřitelnou přírodní krásou, ale i svou fascinující historií. Leží na břehu Halštatského jezera, obklopené dramatickými horami, a jeho historie sahá až do doby před více než 7000 lety, kdy zde byla založena jedna z nejstarších solných těžebních oblastí v Evropě. Město je dnes zapsáno na seznamu světového dědictví UNESCO, a to nejen kvůli své přírodní scenérii, ale i kvůli archeologickým nálezům, které dokládají význam Solné komory v prehistorickém období.<br><br>
+
+Hallstatt je také známý svou tradiční dřevěnou architekturou, která se vyznačuje malebnými domy s typickými šindelovými střechami, které se tyčí nad jezerem. Město je turisticky velmi oblíbené, přitahující návštěvníky svou atmosférou, která jakoby zastavila čas. Kromě návštěvy solných dolů mohou turisté obdivovat také kostnici v kostele svatého Michaela, kde jsou uloženy tisíce lidských kostí a lebek.<br><br>
+
+Procházky po okolních horách a okolí jezera nabízejí dechberoucí výhledy a zážitky z alpské přírody, což činí z Hallstatt destinaci, která osloví milovníky historie, kultury i přírody.<br><br></p>
+<img src="images/fotka25.jpg" width=380 height=240>
+            <img src="images/fotka26.jpg" width=370 height=240>  
+            <hr>           
+</div>
+            <div class="location-article" id="mesto-alpbach">
+              <h3>Alpbach</h3>
+              <p>Alpbach, malebná vesnice v rakouském Tyrolsku, je známá svou jedinečnou architekturou a přírodními krásami. Leží na úpatí hor v údolí, které je známé svými rozkvetlými loukami a zalesněnými svahy. Tento region má zvláštní kouzlo díky své jednotné dřevěné architektuře, která zachovává tradiční alpský vzhled, což mu v roce 1953 přineslo titul „Nejkrásnější vesnice Rakouska“. Alpbach se pyšní také bohatou květinovou výzdobou, která je viditelná na každém kroku, což z městečka činí ideální místo pro relaxaci a vychutnávání přírody.<br><br>
+
+Historie vesnice sahá až do středověku, kdy byla její ekonomika založena především na zemědělství, a dnes je Alpbach známý jako kulturní centrum. Každý rok se zde koná Alpbach Forum, což je prestižní mezinárodní akce, která přitahuje významné odborníky, politiky a vědce z celého světa. Kromě kulturního dědictví nabízí Alpbach také skvělé podmínky pro turistiku a lyžování v zimě. Okolní hory, jako je Hochschwendberg, jsou ideální pro pěší túry, horskou cyklistiku a paragliding.<br><br>
+
+Alpbach je místo, kde se spojují tradice, příroda a moderní životní styl, což z něj činí oblíbenou destinaci pro turisty hledající klid a krásu rakouských Alp.<br><br></p>
+<img src="images/fotka27.jpg" width=385 height=240>
+            <img src="images/fotka28.jpg" width=385 height=240>   
+            <hr>          
+</div>
+            <div class="location-article" id="mesto-salzburg">
+              <h3>Salzburg</h3>
+              <p>Salzburg je čtvrté největší město Rakouska a hlavní město spolkové země Salcbursko, známé svou bohatou historií, kulturním dědictvím a architekturou. Město leží na řece Salzach, nedaleko hranic s Německem, a je jedním z nejvýznamnějších kulturních center v Evropě. Salzburg je známý především díky svému slavné rodáku, skladateli Wolfgangu Amadeu Mozartovi, jehož dům, kde se narodil, je dnes muzeem. Město je rovněž domovem pro mnoho hudebních festivalů, mezi které patří například legendární Salzburg Festival, jenž každoročně přitahuje tisíce návštěvníků z celého světa.<br><br>
+
+Salzburg je proslulý svou barokní architekturou, která je jedním z důvodů, proč bylo zapsáno na seznam světového dědictví UNESCO. K nejvýznamnějším památkám patří impozantní Hrad Hohensalzburg, který se tyčí nad městem a nabízí úchvatný výhled na okolní krajinu, katedrála sv. Ruperta a sv. Virgil, a nádherně zachovalé historické centrum. Tyto památky společně s úzkými uličkami a malebnými náměstími vytvářejí atmosféru, která přitahuje turisty po celý rok.<br><br>
+
+Město je také známé svou kavárenskou kulturou, kde si návštěvníci mohou vychutnat tradiční rakouskou kávu s dortem, jako je slavný Sacherův dort, a užívat si příjemné prostředí starých kaváren. Salzburk je ideální pro milovníky historie, hudby, umění a skvělé rakouské kuchyně.<br><br></p>
+<img src="images/fotka29.jpg" width=380 height=240>
+            <img src="images/fotka30.jpg" width=380 height=240>      
+            <hr>       
+</div>
+            <div class="location-article" id="mesto-innsbruck">
+              <h3>Innsbruck</h3>
+              <p>Innsbruck je hlavním městem Tyrolska a jedním z nejnavštěvovanějších měst v Alpách. Leží v srdci Tyrolských Alp a je obklopen horskými vrcholy, což mu dává jedinečnou polohu a krásné výhledy. Innsbruck je město, které se může pochlubit bohatou historií, architektonickými památkami, a zároveň moderními vybaveními pro turisty, což ho činí ideálním místem pro kombinaci kulturního zážitku a outdoorových aktivit. Město je známé svou rolí hostitele zimních olympijských her, které se zde konaly v roce 1964 a 1976, což mu dává mezinárodní význam v oblasti zimních sportů.<br><br>
+
+Innsbruck je také známý svou historickou architekturou, která se odráží v mnoha památkách, jako je zlatý střechu (Goldenes Dachl), která je jedním z nejznámějších symbolů města. Tento renesanční dům s pozlacenou střechou byl postaven v 15. století a sloužil jako sídlo císařské rodiny. Dnes je to jedno z nejnavštěvovanějších míst v Innsbrucku a symbol městské historie. Mezi další významné památky patří Hofburg, bývalý císařský palác, a středověká část města, která je plná úzkých uliček a tradičních tyrolských domů.<br><br>
+
+Město je také výchozím bodem pro různé outdoorové aktivity, včetně lyžování, turistiku a horolezectví. Innsbruck je obklopen několika vysoce kvalitními lyžařskými středisky, které jsou oblíbené mezi turisty hledajícími adrenalinové zážitky na svazích. V letních měsících se město promění v ideální základnu pro turistiku a cyklistiku, kdy návštěvníci mohou prozkoumávat okolní horské oblasti a vychutnávat si pohledy na alpskou krajinu. Innsbruck je tak ideálním místem pro milovníky přírody, kultury a sportu.<br><br></p>
+<img src="images/fotka31.jpg" width=385 height=240>
+            <img src="images/fotka32.jpg" width=385 height=240>  
+            <hr>           
+</div>
+            <div class="location-article" id="mesto-graz">
+              <h3>Graz</h3>
+              <p>Graz, druhé největší město Rakouska a metropole spolkové země Štýrsko, leží na jihovýchodě země při řece Mur. Je známý svou kombinací historické atmosféry a živé studentské energie – ve městě totiž působí několik univerzit, včetně známé Karl-Franzens-Universität. Historické centrum Grazu je zapsáno na seznam světového dědictví UNESCO a nabízí návštěvníkům spletitou síť uliček, středověké i renesanční budovy a dominantní hradní vrch Schlossberg s ikonickou hodinovou věží Uhrturm, odkud se otevírá panoramatický výhled na město.<br><br>
+
+Město zaujme i svou moderní architekturou – známý je například futuristický Kunsthaus Graz, přezdívaný „přátelský vetřelec“, nebo uměle vytvořený ostrov na řece Mur, který slouží jako kavárna a kulturní prostor. Kromě toho nabízí Graz i množství muzeí, galerií, historických kostelů a krásné zámecké komplexy, jako je barokní zámek Eggenberg s bohatě zdobenými interiéry.<br><br>
+
+Graz je také městem gastronomie – byl jmenován městem gurmánů UNESCO a v jeho okolí se nachází úrodná oblast známá jako „rakouská zahrada“, kde se pěstuje víno, dýně nebo jablka. Na trzích i v místních restauracích tak ochutnáte čerstvé regionální speciality, včetně slavného štýrského dýňového oleje. Graz tak spojuje historické dědictví, moderní kulturu a kvalitní gastronomii, což z něj činí atraktivní cíl pro každého cestovatele.<br><br></p>
+<img src="images/fotka33.jpg" width=380 height=240>
+            <img src="images/fotka34.jpg" width=380 height=240>    
+            <hr>         
+</div>
+            <div class="location-article" id="mesto-jagdhausalmen">
+              <h3>Osada Jagdhausalmen</h3>
+              <p>Jagdhausalmen je jedinečná alpská osada nacházející se v nadmořské výšce přes 2 000 metrů v Národním parku Vysoké Taury, na konci údolí Defereggental ve východním Tyrolsku. Tato historická lokalita je považována za jednu z nejstarších horských usedlostí v Rakousku, přičemž první písemná zmínka o ní pochází z roku 1212. Skládá se ze 16 kamenných domů a kaple, všechny stavby jsou chráněny jako kulturní památky. Díky své odlehlosti a architektuře bývá osada přezdívána „rakouské Tibet“.<br><br>
+
+Vzhledem k vysoké nadmořské výšce a drsným klimatickým podmínkám byla původní celoroční osada postupně přeměněna na letní pastviny. Každoročně v červnu sem přichází přibližně 330 mladých krav, o které se stará pět až šest pastevců. Zajímavostí je, že ačkoliv se osada nachází na rakouském území, většina pastvin a práv k jejich využívání patří farmářům z jihotyrolské vesnice Ahornach.<br><br>
+
+Kromě historických staveb zde najdete i kapli Maria-Hilf z roku 1841, která je známá svým oltářem zobrazujícím osadu s obrazem Panny Marie. Nad osadou se nachází malé jezírko zvané Pfauenauge (Paví oko), obklopené horským rákosím. V okolí se rozprostírá unikátní borovicový les, který je v této části Alp ojedinělý svou rozlohou a kompaktností.<br><br>
+Wikipedia
+
+Přístup k Jagdhausalmen je možný pěšky z rakouské strany přes Seebachalm nebo z jihotyrolského Reintalu přes sedlo Klammljoch. Pro svou jedinečnost a zachovalost byla osada v roce 2007 čtenáři rakouského deníku Kleine Zeitung zvolena za „největší div světa“ v rámci Korutan a Východního Tyrolska.<br><br></p>
+<img src="images/fotka35.jpg" width=385 height=240>
+            <img src="images/fotka36.jpg"width=385 height=240> 
+            <hr>            
+</div>
+            <div class="location-article" id="mesto-villach">
+              <h3>Villach</h3>
+              <p>
+
+
+Villach je druhé největší město spolkové země Korutany a důležité regionální centrum v jižním Rakousku. Leží poblíž hranic se Slovinskem a Itálií, což mu dodává mezinárodní charakter a činí z něj výborný výchozí bod pro poznávání alpsko-jadranského prostoru. Město je obklopeno několika jezery, z nichž nejznámější jsou Faaker See a Ossiacher See, a zároveň je nedaleko pohoří jako Gerlitzen či Dobratsch, což z něj činí atraktivní místo jak pro letní, tak zimní turistiku.<br><br>
+
+Historie Villachu sahá až do doby římské, ale většího významu nabylo město ve středověku. Dodnes je v centru zachována řada historických budov včetně kostela sv. Jakuba s věží, která nabízí výhled na celé okolí. Villach si udržuje malebný ráz s pěší zónou plnou kaváren, obchodů a kulturních akcí – v létě zde například probíhá oblíbený karneval či tradiční trhy.<br><br>
+
+Důležitým bodem v okolí je přírodní park Dobratsch, který nabízí četné turistické trasy, výhledy až do Itálie a Slovinska, a bohatou alpskou flóru a faunu. Oblíbeným cílem je také výjezd po panoramatické Dobratsch Alpenstrasse až ke známému vyhlídkovému místu Rosstratten. Z města je snadno dostupná i lanovka na horu Gerlitzen, která v zimě slouží lyžařům a v létě turistům a paraglidistům.<br><br>
+
+Villach je město, které v sobě spojuje historii, přírodu a moderní vybavenost – ať už hledáš klid u jezera, sportovní vyžití v horách, nebo kulturní akce v centru města, najdeš tu vše na dosah. Chceš pokračovat s další destinací?<br><br></p>
+<img src="images/fotka37.jpg" width=385 height=240>
+            <img src="images/fotka38.jpg" width=385 height=240>    
+            <hr>         
+</div>
+          </div>`;
+      }
+      
+      if (selectedCategories.includes('hory')) {
+        html += `
+          <div class="tab-content" id="tab4">
+            <h1>Hory</h1>
+            <hr>
+            <div class="location-article" id="hora-vysoketaury">
+              <h3>Vysoké Taury</h3>
+              <p>Vysoké Taury jsou nejvyšší horami Rakouska a jedním z nejimpozantnějších pohoří v Alpách. Rozkládají se na hranicích mezi Salcburskem a Tyrolskem a jsou domovem mnoha ledovců a vrcholů, které přesahují 3 000 metrů nad mořem. Tento národní park, známý svou drsnou krásou a přírodními divy, je ideálním místem pro horskou turistiku, alpské horolezectví, a zimní sporty. Nejvyšší vrchol Vysokých Taur je Großglockner (3 798 m), který je také nejvyšší horou Rakouska. Je to jedno z nejvyhledávanějších míst pro zkušené horolezce a pro turisty, kteří si chtějí vychutnat nezapomenutelné výhledy na alpské panorama.<br><br>
+
+Vysoké Taury jsou nejen krásné, ale i velmi rozmanité. Kromě monumentálních horských vrcholů jsou zde rozsáhlé ledovce, hluboké údolí, horské bystřiny a malebné alpské louky. Tento národní park je domovem mnoha druhů rostlin a zvířat, včetně vzácných alpských druhů, jako jsou kamzíci, ibexi a orli skalní. Díky své bohaté fauně a flóře je Vysoký Taury ideálním místem pro přírodní turisty, fotografy a milovníky divoké přírody.<br><br>
+
+Region Vysokých Taur je rovněž známý svou historickou a kulturní hodnotou. Kromě přírodních krás je v oblasti řada malebných horských vesnic, které nabízejí tradiční alpskou architekturu a pohostinnost. Na mnoha místech parku můžete najít staré horské chaty a refugia, které slouží jako výchozí bod pro túry a výlety do okolní přírody. Pro milovníky horských túr je toto místo neocenitelné, a to jak v létě, kdy můžete prozkoumávat zelené alpské louky, tak v zimě, kdy se oblast stává centrem pro lyžařské a snowboardové aktivity.<br><br></p>
+<img src="images/fotka39.jpg" width=385 height=240>
+            <img src="images/fotka40.jpg" width=385 height=240>    
+            <hr>         
+</div>
+            <div class="location-article" id="hora-grossglockner">
+              <h3>Hora Grossglockner</h3>
+              <p>Großglockner je nejvyšší horou Rakouska, která se tyčí do výšky 3 798 metrů nad mořem, a je jedním z největších alpských vrcholů, které lákají turisty i horolezce z celého světa. Tato majestátní hora se nachází v Národním parku Vysoké Taury a je oblíbeným místem pro různé outdoorové aktivity, jako je horolezectví, trekking, lyžování a horská cyklistika. Výstup na vrchol Großglockneru je technicky náročný a vyžaduje zkušenosti s vysokohorským lezením, ale i ti, kteří nechtějí zdolávat vrchol, mohou obdivovat krásy tohoto regionu prostřednictvím různých turistických tras.<br><br>
+
+Jednou z nejpopulárnějších tras je vyhlídková silnice Grossglockner Hochalpenstraße, která je jednou z nejznámějších alpských silnic v Evropě. Tato silnice vede návštěvníky skrze úchvatné krajiny, nabízí fantastické výhledy na vrcholy hor a zasněžené ledovce a je otevřena po většinu roku. Silnice je navržena tak, aby umožnila motoristům dostat se co nejblíže k alpským vrcholům, což z ní činí ideální místo pro ty, kteří chtějí zažít majestátní přírodu Alp, aniž by museli vykonávat náročné výstupy.<br><br>
+
+V oblasti kolem Großglockneru je mnoho příležitostí pro pěší turistiku, včetně náročných túr na ledovce a okolní vrcholy. V zimě se Großglockner stává oblíbeným místem pro lyžování a snowboarding, přičemž některé oblasti kolem hory jsou známé svými přírodními terény, ideálními pro freeride lyžování. Na úpatí hory se nachází také několik horských chat, kde si turisté mohou odpočinout a ochutnat místní speciality, jako je rakouská polévka nebo knedlíky.<br><br>
+
+Großglockner je nejen místem pro outdoorové nadšence, ale i pro ty, kteří si chtějí užít klid a krásu přírody v srdci Alp. Tato hora, obklopená rozmanitými přírodními scenériemi, je jedním z nejvýznamnějších symbolů Rakouska a jejím vrcholem končí mnoho alpských expedic.<br><br></p>
+<img src="images/fotka41.jpg" width=385 height=235>
+            <img src="images/fotka42.jpg" width=385 height=235>   
+            <hr>          
+</div>
+            <div class="location-article" id="hora-nordkette">
+              <h3>Vrchol Nordkette</h3>
+              <p>vrchol nordkette
+
+
+Vrchol Nordkette je součástí impozantního horského hřebene nad městem Innsbruck v rakouském Tyrolsku. Tato část Karwendelského pohoří je oblíbeným cílem turistů, horolezců i lyžařů díky své výjimečné poloze a snadné dostupnosti přímo z města. Nejvyšší bod hřebene se jmenuje Kleiner Solstein a dosahuje výšky 2 637 metrů, ale za hlavní vyhlídkový vrchol bývá považován Hafelekar (2 334 m), kam se dá pohodlně dostat lanovkou z centra Innsbrucku.<br><br>
+
+Lanovka Nordkettenbahnen je zážitkem sama o sobě – během několika minut vystoupá z města do vysokohorského prostředí s dramatickými výhledy na Alpy i údolí Innu. Cestou nahoru se zastavuje na několika stanicích, včetně Hungerburg, Seegrube a právě Hafelekar. Výhled z vrcholu je dechberoucí – na jih se rozprostírá město Innsbruck a za ním tyrolské Alpy, na sever pak hluboké kaňony a lesy přírodního parku Karwendel.<br><br>
+
+Nordkette není jen o výhledech – nabízí i řadu turistických tras, od pohodových procházek až po náročné výstupy po skalních hřebenech. V zimě je oblast populární mezi freeridery, protože Seegrube a okolí Hafelekaru nabízejí prudké svahy s prašanem a výzvami pro zkušené lyžaře. V létě lákají oblasti kolem lanovek milovníky hor, přírody i adrenalinu, včetně horolezců a paraglidingových pilotů.<br><br>
+
+Vrchol Nordkette je tedy výjimečným místem, kde se mísí přírodní krása s přístupností a městskou kulturou Innsbrucku. Nabízí jeden z nejrychlejších přechodů z města do vysokohorského světa v celých Alpách. Chceš další lokalitu?<br><br></p>
+<img src="images/fotka43.jpg" width=385 height=240>
+            <img src="images/fotka44.jpg" width=385 height=240> 
+            <hr>            
+</div>
+            <div class="location-article" id="hora-rofan">
+              <h3>Pohoří Rofan</h3>
+              <p>Pohoří Rofan se nachází ve východní části rakouského Tyrolska, na severním okraji jezera Achensee. Toto menší, ale výrazně členité vápencové pohoří je součástí Severních vápencových Alp a patří mezi méně přeplněné, ale o to působivější horské oblasti. Vrcholy jako Rofanspitze (2 259 m), Gschöllkopf (2 039 m) nebo Hochiss (2 299 m) nabízejí nádherné výhledy na okolní hory i tyrkysově modré jezero.<br><br>
+
+Rofan je ideální destinací pro pěší turistiku, horolezectví a klidný pobyt v horách. V létě je zde síť dobře značených turistických stezek, které vedou přes alpské pastviny, kolem horských chat a přes skalnaté hřebeny. Jednou z hlavních atrakcí je panoramatická lanovka Rofanbahn, která vyváží návštěvníky z obce Maurach přímo do srdce hor. Odtud je možné podniknout pohodové výšlapy, například na Gschöllkopf, kde se nachází také známá atrakce „Adlerhorst“ – ocelová konstrukce ve tvaru orlího hnízda s výhledem na celý region.<br><br>
+
+Pro milovníky adrenalinu nabízí Rofan i zážitky jako paragliding nebo známou lanovou houpačku AirRofan Skyglider, která simuluje let jako orel z hřebene Gschöllkopfu. Oblast je také výchozím bodem pro vícedenní přechody do okolních hor, včetně napojení na Karwendel nebo Brandenbergské Alpy.<br><br>
+
+V zimě se Rofan proměňuje v menší lyžařské středisko s rodinným charakterem, které je oblíbené mezi začátečníky i skialpinisty. Klidné horské prostředí, čistý vzduch a výhledy na jezero Achensee tvoří kombinaci, která láká návštěvníky hledající přírodu, klid a prostor k pohybu bez davů.<br><br>
+
+Chceš pokračovat s další destinací?<br><br></p>
+<img src="images/fotka45.jpg" width=385 height=235>
+            <img src="images/fotka46.jpg" width=385 height=235> 
+            <hr>            
+</div>
+          </div>`;
+      }
+      
+      if (selectedCategories.includes('ostatni')) {
+        html += `
+          <div class="tab-content" id="tab5">
+            <h1>Ostatní</h1>
+            <hr>
+            <div class="location-article" id="ostatni-neuschwanstein">
+              <h3>Zámek Neuschwanstein</h3>
+              <p>Zámek Neuschwanstein je jedním z nejikoničtějších a nejnavštěvovanějších zámků v Evropě. Nachází se v bavorských Alpách poblíž městečka Füssen, nedaleko rakouských hranic. Tento pohádkově vyhlížející zámek byl postaven na konci 19. století na popud bavorského krále Ludvíka II., který jej nechal vybudovat jako romantické útočiště inspirované legendami, středověkými rytířskými hrady a operami Richarda Wagnera.<br><br>
+
+Stavba začala v roce 1869, ale zámek nebyl nikdy dokončen v plném rozsahu podle původních plánů. Přesto vzniklo monumentální dílo, které svým vzhledem připomíná zámky z pohádek. Vysoké bílé věže, ostré střechy, fantastické interiéry a nádherná poloha nad údolím řeky Pöllat z něj činí jednu z nejfotogeničtějších památek v Alpách. Zámek je postaven v novoromantickém stylu, s prvky gotiky, byzantské architektury i romantismu 19. století.<br><br>
+
+Interiéry jsou bohatě zdobené a tematicky laděné – najdeme zde například Sál pěvců inspirovaný legendami o Parsifalovi, královskou ložnici s vyřezávaným baldachýnem a gotickými oblouky, nebo umělou jeskyni s vodopádem. Každý prostor zámku je koncipován jako umělecké dílo samo o sobě a odráží osobnost a vnitřní svět Ludvíka II.<br><br>
+
+Zámek Neuschwanstein se nachází uprostřed nádherné horské krajiny s výhledem na jezero Alpsee a okolní štíty. V okolí se nachází také další pamětihodnosti, například starší zámek Hohenschwangau, kde Ludvík II. vyrůstal, a most Marienbrücke, z něhož se otevírá nejznámější výhled na celý zámek.<br><br>
+
+Dnes je Neuschwanstein jedním z nejnavštěvovanějších turistických cílů v Německu a sloužil jako inspirace například pro zámek Šípkové Růženky od Walta Disneyho. Přestože je částečně turisticky exponovaný, stále si zachovává kouzlo romantického útočiště vysoko v horách, kde se snoubí historie, umění a fantazie.<br><br></p>
+<img src="images/fotka47.jpg" width=385 height=235>
+            <img src="images/fotka48.jpg" width=385 height=235>   
+            <hr>          
+</div>
+            <div class="location-article" id="ostatni-swarowski">
+              <h3>Muzeum Swarowski Kristallwelten</h3>
+              <p>Swarovski Kristallwelten, neboli Křišťálové světy Swarovski, se nacházejí v rakouském městě Wattens v Tyrolsku a jsou jedním z nejnavštěvovanějších turistických cílů v oblasti. Tento fascinující zážitkový park byl otevřen v roce 1995 při příležitosti 100. výročí založení firmy Swarovski a od té doby přitahuje miliony návštěvníků z celého světa.<br><br>
+
+Křišťálové světy se nacházejí v unikátní stavbě ve tvaru obrovské hlavy, která je známá jako „Obr“. V jejích útrobách se nachází několik tematických místností, které přetvářejí křišťál ve formě uměleckých instalací a interaktivních zážitků. Tyto komnaty jsou výsledkem spolupráce s renomovanými umělci, jako je Salvador Dalí, Yayoi Kusama nebo Keith Haring, kteří přetvářeli křišťál podle svých jedinečných vizí. Návštěvníci se tak mohou těšit na kombinaci umění, světla a zvuku, která vytváří neuvěřitelnou atmosféru.<br><br>
+
+Jedním z nejzajímavějších prvků celého komplexu je venkovní zahrada, která zahrnuje Křišťálový oblak. Tento fascinující prvek tvoří více než 800 000 krystalů, které jsou uspořádány nad hladinou černé vody a vytvářejí tak magický efekt. Kromě toho si návštěvníci mohou užít moderní herní věž a karusel, který byl navržen španělským designérem Jaime Hayonem.<br><br>
+
+V areálu se nachází také rozsáhlý obchod, který je největší svého druhu na světě. Zde si můžete zakoupit širokou škálu produktů značky Swarovski, od šperků po designové doplňky a skleněné figurky. Pro milovníky umění je zde také výstava, která ukazuje, jak Swarovski spolupracuje s předními světovými umělci a designéry na unikátních projektech.<br><br>
+
+Pokud se rozhodnete navštívit Swarovski Kristallwelten, určitě nezapomeňte ochutnat jídlo v místní restauraci Daniels Kristallwelten, kde si můžete vychutnat výbornou rakouskou i mezinárodní kuchyni v moderním prostředí s krásným výhledem na zahradu.<br><br></p>
+<img src="images/fotka49.jpg" width=385 height=240>
+            <img src="images/fotka50.jpg" width=385 height=240>  
+            <hr>           
+</div>
+            <div class="location-article" id="ostatni-melk">
+              <h3>Klášter Melk</h3>
+              <p>
+Swarovski Kristallwelten, neboli Křišťálové světy Swarovski, se nachází ve městě Wattens v rakouském Tyrolsku. Jedná se o unikátní kulturní a zážitkový areál, který vznikl v roce 1995 u příležitosti 100. výročí založení světoznámé firmy Swarovski. Jeho autorem je rakouský umělec André Heller, který vytvořil místo plné fantazie, lesku a uměleckých instalací, které oslavují krásu křišťálu.<br><br>
+
+Jedním z hlavních lákadel je vstup do podzemního světa, který střeží obří socha "Obra" s vodopádem vytékajícím z úst. Uvnitř se nachází tzv. Komnaty divů, tedy série tematických místností, kde se křišťál snoubí s různými formami umění, technologií a emocí. Instalace vytvořili renomovaní umělci z celého světa a každá místnost nabízí zcela odlišnou atmosféru a vizuální zážitek.<br><br>
+
+Součástí areálu je také rozlehlá zahrada se "Křišťálovým oblakem", což je moderní umělecké dílo tvořené statisíci krystaly, které se třpytí nad černým jezírkem. V zahradě najdeme i moderní dětské hřiště, karusel a herní věž, což dělá z místa ideální cíl i pro rodiny s dětmi. Návštěvu lze zakončit v designové restauraci Daniels Kristallwelten nebo v největším obchodě značky Swarovski na světě, kde je možné zakoupit šperky, dekorace či suvenýry.<br><br>
+
+Swarovski Kristallwelten tak nabízí spojení přírodního motivu, inovativního designu a kulturního zážitku a představuje jednu z nejvýraznějších turistických atrakcí v regionu.<br><br></p>
+<img src="images/fotka51.jpg" width=385 height=240>
+            <img src="images/fotka52.jpg" width=385 height=240>        
+</div>
+          </div>`;
+      }
+        
+        articlesDiv.innerHTML = html;
+      }
+      
+      // Při změně checkboxů se aktualizuje viditelnost markerů a článků
+      document.querySelectorAll('.filter-checkbox').forEach(checkbox => {
+        checkbox.addEventListener('change', updateVisibility);
+      });
+      
+      // Po načtení stránky se spustí update
+      updateVisibility();
+
+    const mestoIcon = L.icon({
+    iconUrl: "images/mestoIcon.png",
+    iconSize: [50, 55],
+    });
+    const horaIcon = L.icon({
+    iconUrl: "images/mountain icon 1.png",
+    iconSize: [48, 40],
+    });
+    const jezeraIcon = L.icon({
+    iconUrl: "images/lake icon 1.jpg",
+    iconSize: [40, 48],
+    });
+    const videnIcon = L.icon({
+    iconUrl: "images/videnIcon.png",
+    iconSize: [40, 45],
+    });
+    const rozhlednyIcon = L.icon({
+    iconUrl: "images/rozhlednyIcon.png",
+    iconSize: [20, 35],
+    });
+    const ostatniIcon = L.icon({
+    iconUrl: "images/ostatniIcon.webp",
+    iconSize: [40, 45],
+    });
+    const tralaIcon = L.icon({
+    iconUrl: "images/tralalerotralala.png",
+    iconSize: [200, 100],
+    });
+
+
+    function addMarker(marker, category, articleId) {
+      marker.category = category;
+      marker.articleId = articleId;
+      marker.addTo(map);
+      marker.on('click', () => {
+        const article = document.getElementById(articleId);
+        if (article) {
+          article.scrollIntoView({ behavior: 'smooth' });
+        }
+      });
+      markerObjects.push(marker);
+    }
+// === MĚSTA ===
+addMarker(L.marker([47.561245553095, 13.648035956710174], { icon: mestoIcon }).bindPopup('<a href="#mesto-hallstatt">Město Hallstatt</a>'), "mesta");
+
+addMarker(L.marker([47.399102995450356, 11.942973945795028], { icon: mestoIcon }).bindPopup('<a href="#mesto-alpbach">Město Alpbach</a>'), "mesta");
+
+addMarker(L.marker([46.97755080569285, 12.167260953614786], { icon: mestoIcon }).bindPopup('<a href="#mesto-jagdhausalmen">Město Jagdhausalmen</a>'), "mesta");
+
+addMarker(L.marker([48.2081743, 16.3738189], { icon: videnIcon }).bindPopup('<a href="#mesto-viden">Město Vídeň</a>'), "mesta");
+
+addMarker(L.marker([46.610278, 13.855833], { icon: videnIcon }).bindPopup('<a href="#mesto-villach">Město Villach</a>'), "mesta");
+
+addMarker(L.marker([47.2692124, 11.4041024], { icon: videnIcon }).bindPopup('<a href="#mesto-innsbruck">Město Innsbruck</a>'), "mesta");
+
+addMarker(L.marker([47.070714, 15.439504], { icon: videnIcon }).bindPopup('<a href="#mesto-graz">Město Graz</a>'), "mesta");
+
+addMarker(L.marker([47.80949, 13.05501], { icon: videnIcon }).bindPopup('<a href="#mesto-salzburg">Město Salzburg</a>'), "mesta");
+
+
+// === HORY ===
+addMarker(L.marker([47.1671808545102, 12.501422370307061], { icon: horaIcon }).bindPopup('<a href="#hora-vysoketaury">Vysoké Taury</a>'), "hory");
+
+addMarker(L.marker([47.0745932722056, 12.696821828311625], { icon: horaIcon }).bindPopup('<a class="test" href="#hora-grossglockner">Hora Grossglockner</a>'), "hory");
+
+addMarker(L.marker([47.302771006130406, 11.359271248778962], { icon: horaIcon }).bindPopup('<a href="#hora-nordkette">Vrchol Nordkette</a>'), "hory");
+
+addMarker(L.marker([47.5414927464409, 11.888780226600623], { icon: horaIcon }).bindPopup('<a href="#hora-rofan">Pohoří Rofan</a>'), "hory");
+
+// === VODNÍ PLOCHY ===
+addMarker(L.marker([47.46860171882158, 11.713534437708649], { icon: jezeraIcon }).bindPopup('<a href="#achensee">Achensee</a>'), "vodni-plochy");
+
+addMarker(L.marker([47.210127962112615, 12.198669666490924], { icon: jezeraIcon }).bindPopup('<a href="#voda-krimmel">Krimmelské</a>'), "vodni-plochy");
+
+addMarker(L.marker([47.528956463034376, 13.503584596834159], { icon: jezeraIcon }).bindPopup('<a href="#voda-gosauseen">Gosauseen</a>'), "vodni-plochy");
+
+addMarker(L.marker([47.19246569899078, 11.026713876875265], { icon: jezeraIcon }).bindPopup('<a href="#voda-finstertal">Finstertal</a>'), "vodni-plochy");
+
+addMarker(L.marker([47.457556873135594, 12.368990567462959], { icon: jezeraIcon }).bindPopup('<a href="#voda-schwarzsee">Schwarzsee</a>'), "vodni-plochy");
+
+// === ROZHLEDNY ===
+addMarker(L.marker([46.60955815983105, 14.144848607514213], { icon: rozhlednyIcon }).bindPopup('<a href="#rozhledna-pyramidenkogel">Rozhledna Pyramidenkogel</a>'), "rozhledna");
+
+addMarker(L.marker([47.464266148641464, 10.719189211948192], { icon: rozhlednyIcon }).bindPopup('<a href="#rozhledna-highline179">Lanový most Highline 179</a>'), "rozhledna");
+
+addMarker(L.marker([46.97708501344375, 11.110193429393695], { icon: rozhlednyIcon }).bindPopup('<a href="#rozhledna-top-of-tyrol">Top of Tyrol</a>'), "rozhledna");
+
+addMarker(L.marker([47.079757850773596, 13.340962608516492], { icon: rozhlednyIcon }).bindPopup('<a href="#rozhledna-airwalk">Airwalk</a>'), "rozhledna");
+
+addMarker(L.marker([47.52454272545658, 13.693595352495691], { icon: rozhlednyIcon }).bindPopup('<a href="#rozhledna-5fingers">5 Fingers</a>'), "rozhledna");
+
+addMarker(L.marker([47.46770839515491, 13.627608025198425], { icon: rozhlednyIcon }).bindPopup('<a href="#rozhledna-skywalk">Skywalk</a>'), "rozhledna");
+
+// === OSTATNÍ ===
+addMarker(L.marker([47.557711566361036, 10.749848679807414], { icon: ostatniIcon }).bindPopup('<a href="#ostatni-neuschwanstein">Zámek Neuschwanstein</a>'), "ostatni");
+
+addMarker(L.marker([47.29389862050627, 11.602304743849615], { icon: ostatniIcon }).bindPopup('<a href="#ostatni-swarowski">Swarowski Museum</a>'), "ostatni");
+
+addMarker(L.marker([48.22834911614868, 15.331820321276098], { icon: ostatniIcon }).bindPopup('<a href="#ostatni-melk">Klášter Melk</a>'), "ostatni");
+  // TRALALERO TRALALAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+
+// === TRALALERO ===
+const tralalaMarker = L.marker([0, 0], { icon: tralaIcon })
+  .bindPopup('<a href="troll.html" target="_blank">TRALALERO TRALALA</a>');
+tralalaMarker.addTo(map);
+tralalaMarker.on('click', () => {
+  window.open("troll.html", "_blank");
+});
+
+  </script>
+    
+    <footer>
+      <section id="kontakty">
+        <ul>
+          <li class="sstefooter">SŠTE Olomoucká</li>
+          <li>&copy; 2025 Alexadra Černovská, Lubomír Karpíšek, Michal Dvořák, Dominik Kováč, Daniel Kubíček</li>
+        </ul>
+      </section>
+    </footer>
+
+  </body>
+</html>
+

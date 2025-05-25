@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" />
+    <title>PoznejteAlpy</title>
+    <link rel="icon" href="images/logo1.webp" type="faviicon">
+</head>
+<style>
+@font-face { font-family: "font1"; src: url(fonts/Gabarito-VariableFont_wght.ttf); }
+@keyframes fadeIn {
+      to {
+        opacity: 1;
+      }
+    }
+    @keyframes pulse {
+            0% { transform: scale(1); }
+            100% { transform: scale(1.07); }
+      }
+      
+body {
+    font-family: "font1";
+    margin: 0;
+    height: 100%;
+    background-color: rgb(15, 15, 15);
+    background: fixed;
+    background-size: cover;
+    filter: brightness(85%);
+    background-repeat: no-repeat;
+    background-position: center top;
+    padding: 0;
+    animation: fadeIn 1.7s ease-out forwards;
+    opacity: 0;
+    background: black;
+}
+
+body::before {
+    content: "";
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background-image: url("images/Alpy.png");
+    background-size: cover;
+    background-attachment: fixed;
+    background-repeat: no-repeat;
+    background-position: center;
+    filter: brightness(60%);
+    z-index: -1;
+}
+
+body::after {
+    background-color: blue;
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 30px;
+    color: white;
+    text-align: center;
+    z-index: 1;
+}
+
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+    background-color: rgba(0, 0, 0, 0.7);
+    color: white;
+    box-shadow: 0 10px 10px rgba(0, 0, 0, 0.3);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+h1 {
+    font-size: 90px;
+    color: white;
+}
+
+h2 {
+    text-align: center;
+    font-size: 115px;
+    color: white;
+    margin: 250px 150px 320px;
+    animation: pulse 2s ease;
+    animation-fill-mode: forwards;
+}
+
+h3 {
+    color: white;
+    font-size: 50px;
+    margin: 10px 15px 30px;
+    text-align: center;
+    font-weight: bolder;
+    margin-top: 80px;
+}
+
+.background2 {
+    background-color: rgba(0, 0, 0 , 0.7);
+    display: block;
+    margin-top: 20px;
+    margin-bottom: 0;
+    box-shadow: 0 10px 10px rgba(0, 0, 0, 0.5);
+    padding-top: 10px;
+    margin-top: 450px;
+    
+}
+
+p {
+    text-align: center;
+    font-size: 23px;
+    margin: 0 100px;
+    padding: 0 100px 100px;
+    color: white;
+}
+
+::selection {
+    background-color: white;
+    color: black;
+}
+
+.dropdown {
+    position: relative;
+    display: inline-block;
+    cursor: pointer;
+}
+
+.dropdown img {
+    width: 50px;
+    text-align: right;
+}
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: rgba(0, 0, 0, 0.9);
+    min-width: 160px;
+    box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.5);
+    z-index: 1;
+    bottom: 0;
+    right: 0;
+    transform: translateY(100%);
+    border-radius: 12px;
+}
+
+.dropdown-content a {
+    color: white;
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block;
+}
+
+.dropdown-content a:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+    border-radius: 12px;
+}
+
+.show {
+    display: block;
+}
+
+.header-left {
+    justify-items: center;
+    text-align: center;
+}
+
+footer {
+    background-color: rgb(15, 15, 15);
+    padding: 10px 0;
+    text-align: center;
+    color: white;
+    width: 100%;
+    padding: 40px 0;
+}
+
+.sstefooter {
+    text-align: center;
+    font-size: 30px;
+    margin-bottom: 20px;
+    margin-top: 20px;
+}
+
+li {
+    color: white;
+    text-align: center;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+ul {
+    list-style: none;
+}
+
+img {
+    transition: 0.3s ease;
+    filter: invert(0.6) brightness(1.5);
+}
+
+img:hover {
+    transform: scale(1.05);
+    filter: invert(1) brightness(2);
+}
+</style>
+<body>
+<header>  
+    <div class="header-left">
+        <a href="index.html">
+            <img src="images/logo1.webp" class="logo" alt="Logo" width="100px" height="100px">
+        </a>
+    </div>
+    <div class="dropdown">
+        <img src="images/tri_carky.png" onclick="toggleMenu()" alt="Menu">
+        <div class="dropdown-content" id="menu">
+            <a href="mapa.html">Mapa</a>
+            <a href="galerie.html">Galerie</a>
+            <a href="kontakty.html">Kontakty</a>
+            
+        </div>
+    </div>
+</header>
+
+<h2>Poznejte Alpy tak, jak jste je ještě nikdy neviděli!</h2>
+
+<div class="background2">
+    <h3>O Projektu</h3>
+    <p>
+        Naší misí je přiblížit turistům a milovníkům přírody ta nejkrásnější a nejzajímavější místa v Alpách. Alpy jsou jedním z nejnavštěvovanějších pohoří na světě a my Vám chceme nabídnout praktické tipy na ta nejlepší místa, která tato oblast nabízí. Ať už jste vášnivý horolezec, milovník přírody nebo jen hledáte nové zážitky, Alpy mají co nabídnout pro každého.
+
+        Na našich stránkách najdete informace o rozhlednách, jezerech, horských túrách, malebných vesničkách a dalších přírodních krásách, které byste si neměli nechat ujít. Každé místo, které vám představíme, jsme pečlivě vybírali na základě jeho jedinečnosti, krásy a možností k prozkoumání.
+        
+        Chceme, aby náš projekt inspiroval k objevování Alp – ať už hledáte klidné chvíle u horských jezer nebo náročné výstupy na vrcholy. Kromě tipů na výlety tu najdete i praktické informace, jako jsou navigace, doporučené trasy a tipy na ubytování.
+        
+        Alpy jsou místem, kde se setkává divoká příroda, impozantní hory a fascinující historie. Připojte se k nám a objevujte všechna ta skvělá místa, která si zaslouží vaši pozornost.
+    </p>
+
+    <footer>
+        <section id="kontakty">
+            <ul>
+                <li class="sstefooter">SŠTE Olomoucká</li>
+                <li>&copy; 2025 Alexadra Černovská, Lubomír Karpíšek, Michal Dvořák, Dominik Kováč, Daniel Kubíček</li>
+            </ul>
+        </section>    
+    </footer>
+</div>
+
+<script>
+    function toggleMenu() {
+        document.getElementById("menu").classList.toggle("show");
+    }
+
+    window.onclick = function(event) {
+        if (!event.target.closest('.dropdown')) {
+            document.getElementById("menu").classList.remove("show");
+        }
+    }
+</script>
+
+</body>
+</html>
